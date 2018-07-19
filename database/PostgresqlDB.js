@@ -35,14 +35,15 @@ const PostgresqlDB = {
     for(let i = 0 ; i < column.length ; i++){
       data[column[i]] = (lowercaseDataRow[column[i]] == undefined) ? null : lowercaseDataRow[column[i]]
       if(column[i] == "geom") {
-        data["geom"] = String("ST_GeomFromText(POINT("+
-        lowercaseDataRow["longitude"]+" "+
+        data["geom"] = String("ST_SetSRID(ST_MakePoint("+
+        lowercaseDataRow["longitude"]+","+
         lowercaseDataRow["latitude"]+"), 4326)")
       }
     }
     let query = Helpers.insert(data, Object.keys(data), table)
-    query = query.replace("'ST_Geom", "ST_Geom").replace("(POINT", "('POINT").replace(", 4326)')", "', 4326))")
-    
+
+    query = query.replace("'ST_SetSRID", "ST_SetSRID").replace(", 4326)'", ", 4326)")
+
     await Postgresql.query(query).then(r=>{
       console.log(index + " of "+ totalRow + " in " + table)
       return
